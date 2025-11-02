@@ -9,13 +9,24 @@ class TextPayload(BaseModel):
 
 @app.post("/transform-text/")
 async def transform_text(payload: TextPayload):
-    async with httpx.AsyncClient() as client:
-        # Capitalizer
-        cap_res = await client.post("http://localhost:8001/capitalize/", json=payload.dict())
-        capitalized = cap_res.json()["text"]
+    try:
+        async with httpx.AsyncClient() as client:
+            # Step 1: Capitalizer Agent (local)
+            cap_res = await client.post(
+                "http://localhost:8001/capitalize/",
+                json=payload.dict()
+            )
+            cap_res.raise_for_status()
+            capitalized = cap_res.json()["text"]
 
-        # Reverse
-        rev_res = await client.post("http://localhost:8002/reverse/", json={"text": capitalized})
-        reversed_text = rev_res.json()["text"]
+            # Step 2: Reverse Agent (local)
+            rev_res = await client.post(
+                "http://localhost:8002/reverse/",
+                json={"text": capitalized}
+            )
+            rev_res.raise_for_status()
+            reversed_text = rev_res.json()["text"]
+        return {"text": reversed_text}
+    except Exception as e:
+        return {"error": str(e)}
 
-    return {"text": reversed_text}
