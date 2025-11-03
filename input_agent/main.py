@@ -13,7 +13,7 @@ async def transform_text(payload: TextPayload):
         async with httpx.AsyncClient() as client:
             # Step 1: Capitalizer Agent (local)
             cap_res = await client.post(
-                "http://localhost:8001/capitalize/",
+                "https://text-transformer-chain-1.onrender.com/",
                 json=payload.dict()
             )
             cap_res.raise_for_status()
@@ -21,7 +21,7 @@ async def transform_text(payload: TextPayload):
 
             # Step 2: Reverse Agent (local)
             rev_res = await client.post(
-                "http://localhost:8002/reverse/",
+                "https://text-transformer-chain.onrender.com/",
                 json={"text": capitalized}
             )
             rev_res.raise_for_status()
